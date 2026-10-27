@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNPAM Signal Care - Sistem Pengaduan Sinyal & Jaringan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col md:block pb-20 md:pb-6"></body>
+
+    <!-- CONTAINER MOBILE USER VIEW -->
+    
+        
+        <!-- Header Mobile -->
+        <header class="bg-blue-800 text-white p-4 sticky top-0 z-40 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-yellow-400 text-blue-900 font-bold text-xl rounded-full flex items-center justify-center shadow">
+                    U
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight">UNPAM Signal Care</h1>
+                    <p class="text-[11px] text-blue-200">Sistem Pengaduan Jaringan & Sinyal Kampus</p>
+                </div>
+            </div>
+            <div id="userHeaderProfile" class="hidden items-center gap-2">
+                <button onclick="logout()" title="Keluar" class="text-blue-200 hover:text-white p-1 rounded-lg hover:bg-blue-700 transition">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Views Area -->
+        <main class="flex-1 p-4 pb-12 overflow-y-auto w-full max-w-7xl mx-auto"></main>
+
+            <!-- 1. LOGIN PAGE -->
+            <section id="viewLogin" class="py-6 flex flex-col justify-center min-h-[70vh]">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <i data-lucide="wifi" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Selamat Datang</h2>
+                    <p class="text-xs text-slate-500 mt-1">Silakan masuk menggunakan akun MyUnpam Anda</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">NIM (Nomor Induk Mahasiswa) *</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="text" id="loginNim" required placeholder="Contoh: 201011400123" class="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi / Password *</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi" class="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Akun
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center text-xs text-slate-400">
+                    Sistem Pelaporan Sinyal Resmi Universitas Pamulang
+                </div>
+            </section>
+
+            <!-- 2. BERANDA / HOME PAGE -->
+            <section id="viewHome" class="hidden space-y-5">
+                <div class="bg-gradient-to-br from-blue-700 to-indigo-800 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="inline-block px-2.5 py-0.5 bg-blue-500/30 text-blue-100 rounded-full text-[10px] font-semibold mb-2 backdrop-blur-sm border border-blue-400/20">Layanan Mahasiswa</span>
+                        <h2 class="text-xl font-bold leading-tight">Solusi Cepat untuk Koneksi Lancar</h2>
+                        <p class="text-xs text-blue-100 mt-2 opacity-90">Laporkan gangguan jaringan atau sinyal di seluruh area kampus UNPAM dengan cepat.</p>
+                    </div>
+                    <i data-lucide="wifi" class="w-32 h-32 absolute -right-6 -bottom-6 text-white/10"></i>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-bold text-xs">
+                            <i data-lucide="user-check" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-500 font-medium">Mahasiswa Terautentikasi</p>
+                            <p id="displayNim" class="text-xs font-bold text-slate-800">NIM: -</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Aktif</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="navigateTo('pengaduan')" class="p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left group">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <i data-lucide="file-plus-2" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Buat Pengaduan</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Laporkan masalah sinyal</p>
+                    </button>
+
+                    <button onclick="navigateTo('status')" class="p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left group">
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Cek Status Pengaduan</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Lacak perkembangan laporan Anda</p>
+                    </button>
+
+                    <button onclick="navigateTo('info')" class="p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left group">
+                        <div class="w-10 h-10 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <i data-lucide="radio" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Info Gangguan</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Lihat gangguan yang sedang terjadi</p>
+                    </button>
+
+                    <button onclick="navigateTo('riwayat')" class="p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left group">
+                        <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Riwayat Pengaduan</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Daftar Pengaduan Anda</p>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 3. BUAT PENGADUAN PAGE -->
+            <section id="viewPengaduan" class="hidden space-y-4">
+                <div class="flex items-center gap-2 text-slate-800 border-b pb-3">
+                    <button onclick="navigateTo('home')" class="p-1 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 class="font-bold text-base">Buat Pengaduan</h2>
+                </div>
+
+                <p class="text-xs text-slate-500">Pilih lokasi kampus dan isi data pengaduan dengan lengkap.</p>
+
+                <form onsubmit="handleFormPengaduan(event)" class="space-y-4">
+                    <!-- Lokasi Kampus -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Lokasi Kampus *</label>
+                        <select id="formKampus" required class="w-full py-2.5 px-3 text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-blue-600 outline-none">
+                            <option value="">Pilih Lokasi Kampus</option>
+                            <option value="Unpam Pusat">Unpam Pusat</option>
+                            <option value="Unpam Viktor">Unpam Viktor</option>
+                            <option value="Unpam Witana Harja">Unpam Witana Harja</option>
+                            <option value="Unpam Serang">Unpam Serang</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Gedung / Area *</label>
+                            <input type="text" id="formGedung" required placeholder="Contoh: Gedung B" class="w-full py-2.5 px-3 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Ruang / Lantai *</label>
+                            <input type="text" id="formLantai" required placeholder="Contoh: Lt. 3 / R. 320" class="w-full py-2.5 px-3 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jaringan / Provider Bermasalah *</label>
+                        <select id="formProvider" required class="w-full py-2.5 px-3 text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-blue-600 outline-none">
+                            <option value="">Pilih Jaringan / Provider</option>
+                            <option value="Telkomsel">Telkomsel</option>
+                            <option value="Indosat Ooredoo Hutchison">Indosat / Tri</option>
+                            <option value="XL Axiata / Axis">XL Axiata / Axis</option>
+                            <option value="Smartfren">Smartfren</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Kendala *</label>
+                        <select id="formKendala" required class="w-full py-2.5 px-3 text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-blue-600 outline-none">
+                            <option value="">Pilih Jenis Gangguan</option>
+                            <option value="Sinyal Hilang Total (No Service)">Sinyal Hilang Total (No Service)</option>
+                            <option value="Jaringan Lelet / Internet Lambat">Jaringan Lelet / Internet Lambat</option>
+                            <option value="Koneksi Terputus-putus (RTO)">Koneksi Terputus-putus (RTO)</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Detail Kendala *</label>
+                        <textarea id="formDeskripsi" required rows="3" maxlength="500" placeholder="Tuliskan detail kendala sinyal yang Anda alami..." class="w-full p-3 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+                    </div>
+
+                    <!-- UPLOAD BUKTI FOTO (MAX 500 KB) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">
+                            Upload Bukti (Foto/Screenshot) * <span class="text-red-500 font-bold">(Maks. 500KB)</span>
+                        </label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition relative cursor-pointer">
+                            <input type="file" id="formFoto" accept="image/png, image/jpeg, image/jpg" required onchange="handleFileSelect(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <div id="uploadPlaceholder" class="space-y-1">
+                                <i data-lucide="camera" class="w-8 h-8 text-blue-600 mx-auto"></i>
+                                <p class="text-xs font-medium text-slate-700">Tap untuk pilih file foto</p>
+                                <p class="text-[10px] text-slate-400">Format: JPG, PNG (Maksimal 500 KB)</p>
+                            </div>
+                            <div id="uploadPreview" class="hidden flex-col items-center gap-2">
+                                <img id="imgPreviewSrc" class="max-h-36 rounded-lg shadow-sm border" alt="Preview Foto">
+                                <span id="imgSizeLabel" class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200"></span>
+                            </div>
+                        </div>
+                        <p id="fileError" class="text-xs text-red-600 mt-1 font-medium hidden flex items-center gap-1">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Ukuran foto melebihi 500 KB! Pilih foto yang lebih kecil.
+                        </p>
+                    </div>
+
+                    <button type="submit" id="btnSubmitForm" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 mt-4">
+                        <i data-lucide="send" class="w-4 h-4"></i> Kirim Pengaduan
+                    </button>
+                </form>
+            </section>
+
+            <!-- 4. SUKSES KIRIM Pengaduan -->
+            <section id="viewSukses" class="hidden text-center py-8 space-y-6">
+                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner animate-bounce">
+                    <i data-lucide="check-circle-2" class="w-12 h-12"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Pengaduan Berhasil Dikirim!</h2>
+                    <p class="text-xs text-slate-500 mt-2 px-4">Pengaduan Anda akan segera diproses oleh tim teknis kami.</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 max-w-xs mx-auto">
+                    <p class="text-[11px] text-blue-600 font-medium">Nomor Pengaduan / Tiket Anda</p>
+                    <div class="flex items-center justify-center gap-2 mt-2">
+                        <span id="createdTicketNumber" class="text-lg font-extrabold text-blue-900 tracking-wider">#UNPAM-00000</span>
+                        <button onclick="copyTicketNumber()" title="Salin Tiket" class="p-1.5 bg-white border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-100">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <button onclick="navigateTo('home')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="home" class="w-4 h-4"></i> Kembali ke Beranda
+                </button>
+            </section>
+
+            <!-- 5. CEK STATUS PENGADUAN -->
+            <section id="viewStatus" class="hidden space-y-4">
+                <div class="flex items-center gap-2 text-slate-800 border-b pb-3">
+                    <button onclick="navigateTo('home')" class="p-1 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 class="font-bold text-base">Cek Status Pengaduan</h2>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="searchTicketInput" placeholder="Contoh: UNPAM-20261012-1001" class="flex-1 px-3 py-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 uppercase">
+                    <button onclick="searchStatus()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-1 shadow-sm">
+                        <i data-lucide="search" class="w-4 h-4"></i> Cek
+                    </button>
+                </div>
+                <div id="statusResultArea" class="hidden space-y-4 pt-2">
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex justify-between items-start border-b border-slate-200 pb-2">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-medium">Nomor Tiket</p>
+                                <p id="resultTicketNo" class="font-bold text-slate-800 text-sm">#UNPAM-000</p>
+                            </div>
+                            <span id="resultStatusBadge" class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800">Diproses</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div><span class="text-slate-400 block text-[10px]">Tanggal</span><span id="resultDate" class="font-semibold text-slate-700">-</span></div>
+                            <div><span class="text-slate-400 block text-[10px]">Lokasi</span><span id="resultLokasi" class="font-semibold text-slate-700">-</span></div>
+                            <div><span class="text-slate-400 block text-[10px]">Gedung / Ruang</span><span id="resultGedung" class="font-semibold text-slate-700">-</span></div>
+                            <div><span class="text-slate-400 block text-[10px]">Kendala</span><span id="resultKendala" class="font-semibold text-slate-700">-</span></div>
+                        </div>
+                        <div id="resultFotoContainer" class="pt-2 border-t border-slate-200 hidden">
+                            <span class="text-[10px] text-slate-400 block mb-1">Bukti Foto:</span>
+                            <img id="resultFotoImg" class="w-full h-32 object-cover rounded-lg border shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <div id="statusNotFound" class="hidden text-center py-8 text-slate-400">
+                    <i data-lucide="file-x-2" class="w-12 h-12 mx-auto mb-2 text-slate-300"></i>
+                    <p class="text-xs font-semibold">Nomor pengaduan tidak ditemukan.</p>
+                </div>
+            </section>
+
+            <!-- 6. INFORMASI GANGGUAN -->
+            <section id="viewInfo" class="hidden space-y-4">
+                <div class="flex items-center gap-2 text-slate-800 border-b pb-3">
+                    <button onclick="navigateTo('home')" class="p-1 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 class="font-bold text-base">Informasi Gangguan</h2>
+                </div>
+                <div id="infoGangguanList" class="space-y-3"></div>
+            </section>
+
+            <!-- 7. RIWAYAT PENGADUAN -->
+            <section id="viewRiwayat" class="hidden space-y-4">
+                <div class="flex items-center gap-2 text-slate-800 border-b pb-3">
+                    <button onclick="navigateTo('home')" class="p-1 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 class="font-bold text-base">Riwayat Pengaduan</h2>
+                </div>
+                <div id="riwayatList" class="space-y-3"></div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav id="userBottomNav" class="bg-white border-t border-slate-200 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md grid grid-cols-4 py-2 text-center text-slate-500 z-40">
+            <button onclick="navigateTo('home')" class="flex flex-col items-center justify-center text-blue-700 font-semibold"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] mt-0.5">Beranda</span></button>
+            <button onclick="navigateTo('pengaduan')" class="flex flex-col items-center justify-center hover:text-blue-700"><i data-lucide="plus-circle" class="w-5 h-5"></i><span class="text-[10px] mt-0.5">Pengaduan</span></button>
+            <button onclick="navigateTo('status')" class="flex flex-col items-center justify-center hover:text-blue-700"><i data-lucide="search" class="w-5 h-5"></i><span class="text-[10px] mt-0.5">Status</span></button>
+            <button onclick="navigateTo('riwayat')" class="flex flex-col items-center justify-center hover:text-blue-700"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[10px] mt-0.5">Riwayat</span></button>
+        </nav>
+    </div>
+
+    <!-- SCRIPT USER -->
+    <script>
+        const firebaseConfig = { databaseURL: "https://unpamsignalcare-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentUserNim = localStorage.getItem('unpam_nim') || null;
+        let selectedFileBase64 = null;
+        let reportsData = {};
+        let infoGangguanData = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            if (currentUserNim) {
+                document.getElementById('displayNim').innerText = `NIM: ${currentUserNim}`;
+                document.getElementById('userHeaderProfile').classList.remove('hidden');
+                document.getElementById('userHeaderProfile').classList.add('flex');
+                navigateTo('home');
+            } else {
+                navigateTo('login');
+            }
+
+            db.ref('reports').on('value', (snap) => { reportsData = snap.val() || {}; renderRiwayat(); });
+            db.ref('info_gangguan').on('value', (snap) => { infoGangguanData = snap.val() || {}; renderInfoGangguan(); });
+        });
+
+        function navigateTo(section) {
+            ['viewLogin', 'viewHome', 'viewPengaduan', 'viewSukses', 'viewStatus', 'viewInfo', 'viewRiwayat'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById('view' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('hidden');
+            document.getElementById('userBottomNav').classList.toggle('hidden', section === 'login');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const nim = document.getElementById('loginNim').value.trim();
+            if (nim) {
+                currentUserNim = nim;
+                localStorage.setItem('unpam_nim', nim);
+                document.getElementById('displayNim').innerText = `NIM: ${currentUserNim}`;
+                document.getElementById('userHeaderProfile').classList.remove('hidden');
+                document.getElementById('userHeaderProfile').classList.add('flex');
+                navigateTo('home');
+            }
+        }
+
+        function logout() {
+            currentUserNim = null;
+            localStorage.removeItem('unpam_nim');
+            navigateTo('login');
+        }
+
+        // VALIDASI FOTO MAX 500 KB
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            const fileError = document.getElementById('fileError');
+            const submitBtn = document.getElementById('btnSubmitForm');
+            if (!file) return;
+
+            if (file.size > 500 * 1024) {
+                fileError.classList.remove('hidden');
+                e.target.value = '';
+                selectedFileBase64 = null;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            fileError.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                selectedFileBase64 = evt.target.result;
+                document.getElementById('imgPreviewSrc').src = selectedFileBase64;
+                document.getElementById('imgSizeLabel').innerText = `Ukuran: ${(file.size/1024).toFixed(1)} KB (Valid)`;
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('uploadPreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFormPengaduan(e) {
+            e.preventDefault();
+            const ticketNo = `UNPAM-${new Date().toISOString().slice(0,10).replace(/-/g,"")}-${Math.floor(1000 + Math.random() * 9000)}`;
+            const newReport = {
+                ticket: ticketNo,
+                nim: currentUserNim || '201011400000',
+                kampus: document.getElementById('formKampus').value,
+                gedung: document.getElementById('formGedung').value,
+                lantai: document.getElementById('formLantai').value,
+                provider: document.getElementById('formProvider').value,
+                kendala: document.getElementById('formKendala').value,
+                deskripsi: document.getElementById('formDeskripsi').value,
+                foto: selectedFileBase64 || null,
+                date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+                status: 'Diproses',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            db.ref('reports/' + ticketNo).set(newReport, (err) => {
+                if (!err) {
+                    document.getElementById('createdTicketNumber').innerText = `#${ticketNo}`;
+                    e.target.reset();
+                    document.getElementById('uploadPlaceholder').classList.remove('hidden');
+                    document.getElementById('uploadPreview').classList.add('hidden');
+                    selectedFileBase64 = null;
+                    navigateTo('sukses');
+                }
+            });
+        }
+
+        function copyTicketNumber() {
+            navigator.clipboard.writeText(document.getElementById('createdTicketNumber').innerText);
+            alert('Nomor tiket disalin!');
+        }
+
+        function searchStatus() {
+            const val = document.getElementById('searchTicketInput').value.trim().toUpperCase().replace('#', '');
+            const found = Object.values(reportsData).find(r => r.ticket.toUpperCase() === val);
+            if (found) {
+                document.getElementById('statusNotFound').classList.add('hidden');
+                document.getElementById('statusResultArea').classList.remove('hidden');
+                document.getElementById('resultTicketNo').innerText = `#${found.ticket}`;
+                document.getElementById('resultDate').innerText = found.date;
+                document.getElementById('resultLokasi').innerText = found.kampus;
+                document.getElementById('resultGedung').innerText = `${found.gedung} / ${found.lantai}`;
+                document.getElementById('resultKendala').innerText = found.kendala;
+                document.getElementById('resultStatusBadge').innerText = found.status;
+                if (found.foto) {
+                    document.getElementById('resultFotoImg').src = found.foto;
+                    document.getElementById('resultFotoContainer').classList.remove('hidden');
+                } else {
+                    document.getElementById('resultFotoContainer').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('statusResultArea').classList.add('hidden');
+                document.getElementById('statusNotFound').classList.remove('hidden');
+            }
+        }
+
+        function renderInfoGangguan() {
+            const list = document.getElementById('infoGangguanList');
+            const arr = Object.values(infoGangguanData);
+            if (arr.length === 0) { list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Tidak ada info gangguan.</p>`; return; }
+            list.innerHTML = arr.map(i => `
+                <div class="bg-white border rounded-xl p-4 space-y-2 shadow-sm">
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800">${i.statusTag}</span>
+                    <h4 class="font-bold text-xs">${i.title}</h4>
+                    <p class="text-[11px] text-slate-500">${i.location}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderRiwayat() {
+            const list = document.getElementById('riwayatList');
+            const arr = Object.values(reportsData).filter(r => r.nim === currentUserNim);
+            if (arr.length === 0) { list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat.</p>`; return; }
+            list.innerHTML = arr.map(item => `
+                <div class="bg-white border rounded-xl p-3.5 space-y-2 shadow-sm">
+                    <div class="flex justify-between items-center"><span class="font-bold text-xs text-blue-900">#${item.ticket}</span><span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800">${item.status}</span></div>
+                    <p class="text-xs font-semibold">${item.kendala} (${item.provider})</p>
+                    <p class="text-[11px] text-slate-500">${item.kampus} - ${item.gedung}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
